@@ -1,0 +1,79 @@
+version: '3.9'
+
+# ══════════════════════════════════════════════════════
+#  Docker Compose — تشغيل النظام الكامل بأمر واحد
+#
+#  الخدمات:
+#  1. PostgreSQL — قاعدة البيانات
+#  2. pgAdmin — واجهة إدارة قاعدة البيانات
+#  3. smart-mechanic-api — تطبيق Java
+# ══════════════════════════════════════════════════════
+
+services:
+
+  # ── قاعدة البيانات PostgreSQL ─────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: mechanic_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: smart_mechanic_db
+      POSTGRES_USER: mechanic_user
+      POSTGRES_PASSWORD: mechanic_pass
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # سكريبت تهيئة اختياري
+    networks:
+      - mechanic_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mechanic_user -d smart_mechanic_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── pgAdmin — واجهة إدارة قاعدة البيانات ─────────────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: mechanic_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@mechanic.com
+      PGADMIN_DEFAULT_PASSWORD: Admin@123
+    ports:
+      - "5050:80"
+    networks:
+      - mechanic_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ── تطبيق Java Spring Boot ─────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mechanic_api
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_USERNAME: mechanic_user
+      DB_PASSWORD: mechanic_pass
+      JWT_SECRET: SmartMechanicSuperSecretKeyForJWTTokenGeneration2024Production!
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/smart_mechanic_db
+    ports:
+      - "8080:8080"
+    networks:
+      - mechanic_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+
+networks:
+  mechanic_network:
+    driver: bridge

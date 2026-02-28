@@ -1,0 +1,88 @@
+# ══════════════════════════════════════════════════════
+#  إعدادات نظام Smart Mechanic API
+# ══════════════════════════════════════════════════════
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+
+spring:
+  application:
+    name: smart-mechanic-api
+
+  # ── إعدادات قاعدة البيانات PostgreSQL ────────────────
+  datasource:
+    url: jdbc:postgresql://localhost:5432/smart_mechanic_db
+    username: ${DB_USERNAME:mechanic_user}
+    password: ${DB_PASSWORD:mechanic_pass}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  # ── إعدادات JPA / Hibernate ──────────────────────────
+  jpa:
+    hibernate:
+      ddl-auto: update          # create-drop للتطوير، validate للإنتاج
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_schema: public
+
+  # ── Jackson (تنسيق JSON) ──────────────────────────────
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+# ── إعدادات JWT ───────────────────────────────────────
+jwt:
+  secret: ${JWT_SECRET:SmartMechanicSuperSecretKeyForJWTTokenGeneration2024!}
+  expiration-ms: 86400000      # 24 ساعة
+  refresh-expiration-ms: 604800000  # 7 أيام
+
+# ── إعدادات Swagger / OpenAPI ─────────────────────────
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui
+    operations-sorter: method
+    tags-sorter: alpha
+  info:
+    title: "Smart Mechanic API"
+    description: "واجهة برمجية لنظام مساعد الميكانيكي الذكي"
+    version: "1.0.0"
+
+# ── إعدادات Logging ───────────────────────────────────
+logging:
+  level:
+    com.mechanic: DEBUG
+    org.springframework.security: INFO
+    org.hibernate.SQL: INFO
+
+---
+# ══════════════════════════════════════════════════════
+#  بيئة التطوير (dev) — تفعيل H2 بدل PostgreSQL
+# ══════════════════════════════════════════════════════
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:h2:mem:mechanic_dev;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
