@@ -4,12 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * ══════════════════════════════════════════════════════
- *  استجابة موحّدة لجميع الـ API Endpoints
- *  تُضيف: status, message, timestamp لكل رد
- * ══════════════════════════════════════════════════════
- */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ApiResponse<T>(
         boolean success,
@@ -18,7 +12,6 @@ public record ApiResponse<T>(
         String errorCode,
         LocalDateTime timestamp
 ) {
-    // ✅ استجابة ناجحة
     public static <T> ApiResponse<T> ok(T data) {
         return new ApiResponse<>(true, "تمت العملية بنجاح", data, null, LocalDateTime.now());
     }
@@ -27,50 +20,26 @@ public record ApiResponse<T>(
         return new ApiResponse<>(true, message, data, null, LocalDateTime.now());
     }
 
-    // ❌ استجابة خطأ
     public static <T> ApiResponse<T> error(String message, String errorCode) {
         return new ApiResponse<>(false, message, null, errorCode, LocalDateTime.now());
     }
 }
 
 
-/**
- * استجابة التشخيص الكاملة
- */
-record DiagnosticResponse(
-        // معلومات السيارة
+public record DiagnosticResponse(
         VehicleInfo vehicle,
-
-        // معلومات العطل
         FaultInfo fault,
-
-        // الاستراتيجية المُختارة
         String repairStrategy,
-
-        // تحذيرات السلامة
         List<String> safetyPrerequisites,
-
-        // الأدوات المطلوبة
         List<String> requiredTools,
-
-        // الخطوات بصيغة JSON لتطبيق الموبايل
         List<StepResponse> steps,
-
-        // الشكاوى الشائعة المرتبطة
         List<ComplaintResponse> relatedComplaints,
-
-        // الوقت التقديري
         int estimatedTimeMinutes,
-
-        // هل تحتاج برمجة بعد الإصلاح؟
         boolean requiresProgramming
 ) {}
 
 
-/**
- * معلومات السيارة في الاستجابة
- */
-record VehicleInfo(
+public record VehicleInfo(
         String vin,
         String displayName,
         String manufacturer,
@@ -81,10 +50,7 @@ record VehicleInfo(
 ) {}
 
 
-/**
- * معلومات العطل في الاستجابة
- */
-record FaultInfo(
+public record FaultInfo(
         String code,
         String shortDescription,
         String detailedDescription,
@@ -97,10 +63,7 @@ record FaultInfo(
 ) {}
 
 
-/**
- * خطوة الإصلاح — المهيكلة لتطبيق الموبايل
- */
-record StepResponse(
+public record StepResponse(
         int stepNumber,
         String title,
         String description,
@@ -115,10 +78,7 @@ record StepResponse(
 ) {}
 
 
-/**
- * مواصفات القياس
- */
-record MeasurementResponse(
+public record MeasurementResponse(
         String measurementType,
         String unit,
         double minValue,
@@ -128,10 +88,7 @@ record MeasurementResponse(
 ) {}
 
 
-/**
- * شكوى مستهلك
- */
-record ComplaintResponse(
+public record ComplaintResponse(
         String complaintPattern,
         int frequencyPercent,
         String typicalCondition,
@@ -139,10 +96,7 @@ record ComplaintResponse(
 ) {}
 
 
-/**
- * استجابة JWT بعد تسجيل الدخول
- */
-record AuthResponse(
+public record AuthResponse(
         String accessToken,
         String refreshToken,
         String tokenType,
@@ -158,10 +112,7 @@ record AuthResponse(
 }
 
 
-/**
- * بيانات السيارة في القائمة
- */
-record CarSummaryResponse(
+public record CarSummaryResponse(
         String id,
         String vin,
         String displayName,
