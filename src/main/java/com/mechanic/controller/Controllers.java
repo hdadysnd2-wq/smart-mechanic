@@ -242,7 +242,12 @@ class AuthController {
      */
     @PostMapping("/login")
     @Operation(summary = "تسجيل الدخول والحصول على JWT")
-    public ResponseEntity<ApiResponse<AuthResponse>> login(
+    import com.mechanic.dto.response.AuthResponse;
+import com.mechanic.dto.response.ApiResponse;
+import com.mechanic.dto.response.CarSummaryResponse;
+import com.mechanic.dto.response.DiagnosticResponse;
+import com.mechanic.dto.response.FaultInfo;
+public ResponseEntity<ApiResponse<AuthResponse>> login(
             @Valid @RequestBody Object request) {
         return ResponseEntity.ok(ApiResponse.ok("تم تسجيل الدخول", null));
     }
